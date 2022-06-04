@@ -1,0 +1,2 @@
+{{ vpngw.auth.username }}
+{{ vpngw.auth.password or salt["pillar.get"](vpngw.auth.password_pillar) }}

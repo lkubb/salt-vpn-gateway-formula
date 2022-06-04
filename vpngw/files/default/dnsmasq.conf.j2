@@ -1,0 +1,12 @@
+# This file is managed by Salt.
+# Manual changes might be overwritten.
+
+interface={{ vpngw.network.interface_in }}
+bind-interfaces
+listen-address=127.0.0.1,{{ vpngw.network.ipaddr_in }}
+dhcp-range={{ vpngw.dhcp.range_start }},{{ vpngw.dhcp.range_end }},{{ vpngw.dhcp.lease_time }}
+dhcp-option=3,{{ vpngw.network.ipaddr_in }}
+dhcp-option=6,{{ vpngw.network.ipaddr_in }}
+{%- for mac, ipa in vpngw.dhcp.static.items() %}
+dhcp-host={{ mac }},{{ ipa }}
+{%- endfor %}

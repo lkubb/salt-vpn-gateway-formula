@@ -1,0 +1,65 @@
+# yamllint disable rule:indentation rule:line-length
+# Amazon Linux-2
+---
+values:
+  added_in_defaults: defaults_value
+  added_in_lookup: lookup_value
+  added_in_pillar: pillar_value
+  lookup:
+    arch: amd64
+    rootgroup: root
+    config: '/etc/openvpn/client'
+    service:
+      name: openvpn-client
+    dnsmasq_config: /etc/dnsmasq.d/user.conf
+    dnsmasq_service: dnsmasq
+    netfilter: iptables
+    pkgs:
+      - dnsmasq
+      - resolvconf
+      - openvpn
+  auth:
+    password: ''
+    password_pillar: ''
+    username: ''
+  config_archive:
+    hash: ''
+    src: ''
+  connection: salt
+  dhcp:
+    lease_time: 12h
+    range_end: 192.168.234.200
+    range_start: 192.168.234.50
+    static: {}
+  dns:
+    resolvconf_clear:
+      - dhcp
+      - ifup
+  network:
+    cidr_in: 192.168.234.0/24
+    interface_gw: eth0
+    interface_in: eth1
+    interface_vpn: tun0
+    ipaddr_in: 192.168.234.1
+    netmask_in: 255.255.255.0
+  map_jinja:
+    sources:
+    - Y:G@osarch
+    - Y:G@os_family
+    - Y:G@os
+    - Y:G@osfinger
+    - C@vpngw
+    - Y:G@id
+  master: template-master
+  tofs:
+    files_switch:
+    - any/path/can/be/used/here
+    - id
+    - roles
+    - osfinger
+    - os
+    - os_family
+    source_files:
+      vpngw-config-file-file-managed:
+      - example.tmpl.jinja
+  winner: pillar

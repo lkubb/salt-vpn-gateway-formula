@@ -1,0 +1,74 @@
+{
+  "template": "https://github.com/lkubb/salt-template-formula",
+  "commit": "50a694adefdf54f1ca465db433c033ca764942bc",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "_extensions": [
+        "local_extensions.YAMLDumper"
+      ],
+      "_jinja2_env_vars": {
+        "block_start_string": "{!",
+        "block_end_string": "!}",
+        "variable_start_string": "{=",
+        "variable_end_string": "=}",
+        "comment_start_string": "{@",
+        "comment_end_string": "@}"
+      },
+      "name": "VPN Gateway",
+      "abbr": "vpngw",
+      "abbr_pysafe": "vpngw",
+      "pkg": "",
+      "needs_repo": "",
+      "config": "/etc/openvpn/client",
+      "service": "openvpn-client",
+      "subcomponent": "",
+      "subcomponent_config": "",
+      "git_username": "lkubb",
+      "_lookup": {
+        "dnsmasq_config": "/etc/dnsmasq.d/user.conf",
+        "dnsmasq_service": "dnsmasq",
+        "netfilter": "iptables",
+        "pkgs": [
+          "dnsmasq",
+          "resolvconf",
+          "openvpn"
+        ]
+      },
+      "_settings": {
+        "connection": "salt",
+        "auth": {
+          "username": "",
+          "password": "",
+          "password_pillar": ""
+        },
+        "config_archive": {
+          "src": "",
+          "hash": ""
+        },
+        "dhcp": {
+          "lease_time": "12h",
+          "range_start": "192.168.234.50",
+          "range_end": "192.168.234.200",
+          "static": {}
+        },
+        "dns": {
+          "resolvconf_clear": [
+            "dhcp",
+            "ifup"
+          ]
+        },
+        "network": {
+          "cidr_in": "192.168.234.0/24",
+          "interface_in": "eth1",
+          "interface_gw": "eth0",
+          "interface_vpn": "tun0",
+          "ipaddr_in": "192.168.234.1",
+          "netmask_in": "255.255.255.0"
+        }
+      },
+      "_template": "https://github.com/lkubb/salt-template-formula"
+    }
+  },
+  "directory": null
+}

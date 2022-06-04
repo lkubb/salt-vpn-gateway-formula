@@ -1,0 +1,46 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+#
+# Set default values.
+---
+values:
+  lookup:
+    rootgroup: root
+    config: '/etc/openvpn/client'
+    service:
+      name: openvpn-client
+    dnsmasq_config: /etc/dnsmasq.d/user.conf
+    dnsmasq_service: dnsmasq
+    netfilter: iptables
+    pkgs:
+      - dnsmasq
+      - resolvconf
+      - openvpn
+  auth:
+    password: ''
+    password_pillar: ''
+    username: ''
+  config_archive:
+    hash: ''
+    src: ''
+  connection: salt
+  dhcp:
+    lease_time: 12h
+    range_end: 192.168.234.200
+    range_start: 192.168.234.50
+    static: {}
+  dns:
+    resolvconf_clear:
+      - dhcp
+      - ifup
+  network:
+    cidr_in: 192.168.234.0/24
+    interface_gw: eth0
+    interface_in: eth1
+    interface_vpn: tun0
+    ipaddr_in: 192.168.234.1
+    netmask_in: 255.255.255.0
+  # Just here for testing
+  added_in_defaults: defaults_value
+  winner: defaults
+...
