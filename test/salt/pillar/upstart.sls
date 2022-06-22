@@ -41,6 +41,7 @@ vpngw:
     interface_vpn: tun0
     ipaddr_in: 192.168.234.1
     netmask_in: 255.255.255.0
+  port_forward: {}
 
   tofs:
     # The files_switch key serves as a selector for alternative

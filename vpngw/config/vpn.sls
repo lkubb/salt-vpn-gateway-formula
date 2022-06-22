@@ -3,13 +3,13 @@
 
 {%- set tplroot = tpldir.split('/')[0] %}
 {%- set sls_package_install = tplroot ~ '.package.install' %}
-{%- set sls_config_network = tplroot ~ '.config.network' %}
+{%- set sls_netconfig_base = tplroot ~ '.netconfig.base' %}
 {%- from tplroot ~ "/map.jinja" import mapdata as vpngw with context %}
 {%- from tplroot ~ "/libtofs.jinja" import files_switch with context %}
 
 include:
   - {{ sls_package_install }}
-  - {{ sls_config_network }}
+  - {{ sls_netconfig_base }}
 
 {%- if vpngw.config_archive.src %}
 

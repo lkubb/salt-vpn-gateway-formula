@@ -3,5 +3,6 @@
 
 include:
   - .package
+  - .netconfig
   - .config
   - .service

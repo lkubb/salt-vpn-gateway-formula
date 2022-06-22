@@ -2,5 +2,5 @@
 # vim: ft=sls
 
 include:
-  - .dnsdhcp
-  - .vpn
+  - .base
+  - .portforward

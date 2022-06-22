@@ -49,13 +49,15 @@ Required nftables chains are present:
         - hook: forward
         - priority: 0
     - family: ipv4
+{%- endif %}
 
 forward chain drops by default:
-  nftables.set_policy:
+  {{ vpngw.lookup.netfilter }}.set_policy:
     - table: filter
     - chain: forward
     - policy: drop
     - save: true
+{%- if nftables %}
     # This always reports "changes" otherwise
     - unless:
       - nft list chain filter forward | grep "type filter hook forward priority filter; policy drop;"
