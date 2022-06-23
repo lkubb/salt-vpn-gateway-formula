@@ -14,7 +14,9 @@ VPN Gateway Formula
    :scale: 100%
    :target: https://github.com/pre-commit/pre-commit
 
-Manage VPN Gateway with Salt.
+Manage a VPN gateway with Salt.
+
+This formula installs OpenVPN and dnsmasq and configures the system as a gateway router to forward packets from a downstream network via the VPN connection. It is mostly intended for a VM environment.
 
 .. contents:: **Table of Contents**
    :depth: 1
@@ -41,7 +43,10 @@ If you need (non-default) configuration, please refer to:
 
 Special notes
 -------------
-
+* The resulting configuration will try to clear the non-VPN DNS configuration after a connection has been established, so if it goes down, the system will appear as offline. To re-establish a connection, you might need to reboot or manually reinsert a DNS server to resolve the VPN server domain.
+* If the VPN interface is down, downstream packets will never be forwarded.
+* You can configure port forwardings from the VPN to downstream clients.
+* For detailed information, see the example pillar.
 
 Configuration
 -------------
@@ -58,26 +63,27 @@ Available states
 
 *Meta-state (This is a state that includes other states)*.
 
-This installs the vpngw package,
-manages the vpngw configuration file and then
-starts the associated vpngw service.
+This runs the full installation and configuration.
 
 ``vpngw.package``
 ^^^^^^^^^^^^^^^^^
 
-This state will install the vpngw package only.
+This state will install the relevant packages only (``openvpn``, ``dnsmasq``, ``resolvconf`` currently).
 
 ``vpngw.config``
 ^^^^^^^^^^^^^^^^
 
-This state will configure the vpngw service and has a dependency on ``vpngw.install``
-via include list.
+This state will configure the OpenVPN and dnsmasq services and has a dependency on ``vpngw.package`` via include list.
+
+``vpngw.netconfig``
+^^^^^^^^^^^^^^^^^^^
+
+This state will configure the system and firewall to act as a gateway router and has a dependency on ``vpngw.config`` via include list.
 
 ``vpngw.service``
 ^^^^^^^^^^^^^^^^^
 
-This state will start the vpngw service and has a dependency on ``vpngw.config``
-via include list.
+This state will start the OpenVPN and dnsmasq services and has a dependency on ``vpngw.config`` via include list.
 
 ``vpngw.clean``
 ^^^^^^^^^^^^^^^
@@ -85,25 +91,31 @@ via include list.
 *Meta-state (This is a state that includes other states)*.
 
 This state will undo everything performed in the ``vpngw`` meta-state in reverse order, i.e.
-stops the service,
-removes the configuration file and
-then uninstalls the package.
+stops the services,
+removes the configuration files,
+resets the system and firewall configuration and
+then uninstalls the packages.
 
 ``vpngw.service.clean``
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-This state will stop the vpngw service and disable it at boot time.
+This state will stop the OpenVPN and dnsmasq services and disable them at boot time.
 
 ``vpngw.config.clean``
 ^^^^^^^^^^^^^^^^^^^^^^
 
-This state will remove the configuration of the vpngw service and has a
+This state will remove the configuration of the OpenVPN and dnsmasq services and has a
 dependency on ``vpngw.service.clean`` via include list.
+
+``vpngw.netconfig.clean``
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This state will remove the gateway router configuration of the system and firewall.
 
 ``vpngw.package.clean``
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-This state will remove the vpngw package and has a depency on
+This state will remove the relevant packages and has a depency on
 ``vpngw.config.clean`` via include list.
 
 Contributing to this repo

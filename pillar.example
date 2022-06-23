@@ -3,36 +3,77 @@
 # yamllint disable rule:comments-indentation
 ---
 vpngw:
-
+    # Specify credentials. They will be put next to the VPN configuration
+    # in clear text.
   auth:
+      # Specify your password, better use password_pillar to avoid cache leaks.
     password: ''
+      # Specify a pillar key where to look up the password.
     password_pillar: ''
+      # Specify your username.
     username: ''
+    # Specify where to fetch an archive containing the configuration files.
+    # If this is unspecified, the formula will look for a file called
+    # `vpn-client.conf` in the configured TOFS paths.
   config_archive:
+      # If the archive is not on the Salt fileserver, specify the source hash
+      # or set to false to explicitly disable hash checking.
     hash: ''
+      # URI of an archive that contains the configuration files that will be
+      # extracted to /etc/openvpn/client (or equivalent). The archive should
+      # contain the files at the top level currently, no directory.
     src: ''
+    # The name of the configuration file to load. The OpenVPN service can be
+    # started as openvpn-client@<something>, where <something> refers to a
+    # config file called `<something>.conf`.
   connection: salt
+    # This formula installs dnsmasq and configures it to respond to DHCP requests
+    # from downstream. You can modify the default configuration here.
   dhcp:
     lease_time: 12h
     range_end: 192.168.234.200
     range_start: 192.168.234.50
+      # Static mappings from MAC address to IP address,
+      # eg `ab:cd:ef:12: 192.168.234.3`.
     static: {}
+    # DNS-specific settings.
   dns:
+      # This formula ships a modified variant of `update-resolv-conf` to better
+      # prevent DNS leaks. After startup, it tries to clear most non-VPN DNS
+      # configuration from resolvconf.
+      # This also means that the system will appear to be offline after the connection
+      # is down, so to re-establish it, you will need a reboot (or manually reinsert a
+      # DNS server).
     resolvconf_clear:
+        # List of values to clear that are sourced from the upstream interface.
+        # Example result: `resolvconf -d eth0.dhcp`
       interface_gw:
         - dhcp
         - ifup
+        # List of values to clear generally (eg `eth1.ifup`).
       misc: []
+        # Whether to clear `original.resolvconf`, which is resolv.conf config from
+        # before resolvconf started.
       original: true
+    # Information about your network configuration.
   network:
+      # This will be the client network (downstream) IP config.
     cidr_in: 192.168.234.0/24
+      # The name of the outgoing (upstream) interface.
     interface_gw: eth0
+      # The name of the incoming (downstream/clients) interface.
     interface_in: eth1
+      # The name of the OpenVPN interface (probably does not need to be changed).
     interface_vpn: tun0
+      # This gateway's IP address for the incoming (downstream/clients) interface.
     ipaddr_in: 192.168.234.1
+      # The netmask of the downstream (client) network.
     netmask_in: 255.255.255.0
+    # You can configure port forwards. This should be a mapping of
+    # port to target IP/IP:port. Eg: `41234: 192.168.234.3:80`.
   port_forward: {}
 
+    # These values are OS-specific and should not need to be changed.
   lookup:
     dnsmasq_config: /etc/dnsmasq.d/user.conf
     dnsmasq_service: dnsmasq
@@ -68,6 +109,6 @@ vpngw:
       # The entries under `source_files` are prepended to the default source files
       # given for the state
     source_files:
-      vpngw-config-file-file-managed:
-        - 'example_alt.tmpl'
-        - 'example_alt.tmpl.jinja'
+      VPN configuration is managed:
+        - 'salt_alt.conf'
+        - 'salt_alt.conf.j2'
