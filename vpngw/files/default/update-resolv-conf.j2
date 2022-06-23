@@ -55,9 +55,14 @@ case "$script_type" in
 "
     done
     # remove config copied from /etc/resolv.conf
+{%- if vpngw.dns.resolvconf_clear.original %}
     /sbin/resolvconf -d original.resolvconf
-{%- for cl in vpngw.dns.resolvconf_clear %}
+{%- endif %}
+{%- for cl in vpngw.dns.resolvconf_clear.interface_gw %}
     /sbin/resolvconf -d {{ vpngw.network.interface_gw }}.{{ cl }}
+{%- endfor %}
+{%- for misc in vpngw.dns.resolvconf_clear.misc %}
+    /sbin/resolvconf -d {{ misc }}
 {%- endfor %}
     echo -n "$R" | /sbin/resolvconf -a "${dev}.openvpn"
     ;;

@@ -11,6 +11,23 @@ include:
   - {{ sls_package_install }}
   - {{ sls_netconfig_base }}
 
+update-resolv-conf is managed:
+  file.managed:
+    - name: {{ vpngw.lookup.update_resolv_conf }}
+    - source: {{ files_switch(['update-resolv-conf.j2'],
+                              lookup='update-resolv-conf is managed'
+                 )
+              }}
+    - mode: 755
+    - user: root
+    - group: {{ vpngw.lookup.rootgroup }}
+    - makedirs: True
+    - template: jinja
+    - require:
+      - sls: {{ sls_package_install }}
+    - context:
+        vpngw: {{ vpngw | json }}
+
 {%- if vpngw.config_archive.src %}
 
 VPN configuration files are sourced from archive:

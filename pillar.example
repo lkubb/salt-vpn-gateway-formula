@@ -19,8 +19,11 @@ vpngw:
     static: {}
   dns:
     resolvconf_clear:
-      - dhcp
-      - ifup
+      interface_gw:
+        - dhcp
+        - ifup
+      misc: []
+      original: true
   network:
     cidr_in: 192.168.234.0/24
     interface_gw: eth0
@@ -38,6 +41,7 @@ vpngw:
       - dnsmasq
       - resolvconf
       - openvpn
+    update_resolv_conf: /etc/openvpn/update-resolv-conf
 
   tofs:
       # The files_switch key serves as a selector for alternative

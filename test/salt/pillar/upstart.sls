@@ -17,6 +17,7 @@ vpngw:
       - dnsmasq
       - resolvconf
       - openvpn
+    update_resolv_conf: /etc/openvpn/update-resolv-conf
   auth:
     password: ''
     password_pillar: ''
@@ -32,8 +33,11 @@ vpngw:
     static: {}
   dns:
     resolvconf_clear:
-      - dhcp
-      - ifup
+      interface_gw:
+        - dhcp
+        - ifup
+      misc: []
+      original: true
   network:
     cidr_in: 192.168.234.0/24
     interface_gw: eth0
