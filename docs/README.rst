@@ -52,6 +52,101 @@ Configuration
 -------------
 An example pillar is provided, please see `pillar.example`. Note that you do not need to specify everything by pillar. Often, it's much easier and less resource-heavy to use the ``parameters/<grain>/<value>.yaml`` files for non-sensitive settings. The underlying logic is explained in `map.jinja`.
 
+Dynamic port forwards
+^^^^^^^^^^^^^^^^^^^^^
+In case your port forwards are dynamic (e.g. depending on assigned IP address), you can make use of the included reactor/orchestrator sls files:
+
+You will need a script that returns a list of available ports in JSON:
+
+.. code-block:: python
+
+    #!/usr/bin/env python3
+
+    import fcntl
+    import json
+    import socket
+    import struct
+    import sys
+
+    SIOCGIFADDR = 0x8915
+
+
+    def get_ports(ip):
+        # do something to arrive at the ports
+        pass
+
+
+    def get_ip(interface):
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            packed_iface = struct.pack('256s', (interface[:15]).encode('utf_8'))
+            packed_addr = fcntl.ioctl(sock.fileno(), SIOCGIFADDR, packed_iface)[20:24]
+            return socket.inet_ntoa(packed_addr)
+
+
+    def build_response(tag, ports, ip_downstream):
+        return {
+            "tag": tag,
+            "data": {
+                "gw_addr": ip_downstream,
+                "ports": ports,
+            }
+        }
+
+
+    if __name__ == "__main__":
+        iface_upstream = sys.argv[1]
+        ip_upstream = get_ip(iface_upstream)
+        ports = get_ports(ip_upstream)
+        if len(sys.argv) == 2:
+            print(json.dumps(ports))
+            exit(0)
+        iface_downstream, tag = sys.argv[2:]
+        ip_downstream = get_ip(iface_downstream)
+        res = build_response(tag, ports, ip_downstream)
+        print(json.dumps(res))
+
+You can set this script in ``port_forward_script:source``, e.g. with ``port_forward_script:args=tun0``, which will update the port forwards during a state run. You can also set this script in an engine config on a minion, firing an event if the ports change:
+
+.. code-block:: yaml
+
+    engines:
+     - script:
+         cmd: /etc/openvpn/port-forwards tun0 eth1 vpngw/portforward/update
+         output: json
+         interval: 180
+         onchange: true
+
+On your master, you will need to map this event to the included reactor, which will run this formula on the minion and a highstate on dependent ones:
+
+.. code-block:: yaml
+
+    reactor:
+      - vpngw/portforward/update:
+        - salt://react/vpngw/update_port_forwards.sls
+
+You can make use of the port mappings in the mine e.g. like this in your parameters:
+
+.. code-block:: jinja
+
+    {%- set vpngw_forwards = salt["mine.get"]("vpn*", "vpngw_port_forwards") %}
+    {%- set local_gw = salt["grains.get"]("ip4_gw") %}
+    {%- set forwards = {} %}
+    {%- for _, gw_forwards in vpngw_forwards.items() %}
+    {%-   if gw_forwards | first == local_gw %}
+    {%-     do forwards.update(gw_forwards.values() | first) %}
+    {%-     break %}
+    {%-   endif %}
+    {%- endfor %}
+    {%- set addrs = grains.get("ip4_interfaces", {}).get("eth0") %}
+    {%- set port = {"val": none} %}
+    {%- for pf, tgt in forwards.items() %}
+    {%-   if tgt in addrs %}
+    {%-     do port.update({"val": pf | int}) %}
+    {%-     break %}
+    {%-   endif %}
+    {%- endfor %}
+
+
 Available states
 ----------------
 

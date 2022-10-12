@@ -17,6 +17,7 @@ vpngw:
       - dnsmasq
       - resolvconf
       - openvpn
+    port_forward_script: /etc/openvpn/port-forwards
     update_resolv_conf: /etc/openvpn/update-resolv-conf
   auth:
     password: ''
@@ -46,6 +47,10 @@ vpngw:
     ipaddr_in: 192.168.234.1
     netmask_in: 255.255.255.0
   port_forward: {}
+  port_forward_script:
+    args: []
+    source: ''
+    targets: []
 
   tofs:
     # The files_switch key serves as a selector for alternative

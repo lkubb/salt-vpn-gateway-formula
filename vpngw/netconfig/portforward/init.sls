@@ -9,6 +9,29 @@
 include:
   - {{ sls_netconfig_base }}
 
+{%- if vpngw.port_forward_script.source %}
+{%-   set pfs = vpngw.port_forward_script.source %}
+{%-   set ports = salt["cmd.script"](pfs, args=vpngw.port_forward_script.args)["stdout"] | load_json %}
+{%-   set forwards = {} %}
+{%-   for target in vpngw.port_forward_script.targets %}
+{%-     if ports | length >= loop.index %}
+{%-       do forwards.update({ports[loop.index - 1]: target}) %}
+{%-     endif %}
+{%-   endfor %}
+{%-   do vpngw.port_forward.update(forwards) %}
+
+# This can be helpful with script engine/reactor to keep forwards/downstream minions in sync
+Custom port forward script is present:
+  file.managed:
+    - name: {{ vpngw.lookup.port_forward_script }}
+    - source: {{ vpngw.port_forward_script.source }}
+    - user: root
+    - group: {{ vpngw.lookup.rootgroup }}
+    - mode: '0744'
+    - dir_mode: '0755'
+    - makedirs: true
+{%- endif %}
+
 Port forwarding chains exist:
   {{ vpngw.lookup.netfilter }}.chain_present:
     - names:
@@ -50,13 +73,19 @@ Incoming packets for forwarded port {{ dport }} are accepted:
         - proto: tcp
 {%-   if nftables %}
         - unless:
-          - nft list chain filter portforward | grep 'iifname "{{ vpngw.network.interface_vpn }}" oifname "{{ vpngw.network.interface_in }}" tcp dport { {{ dport }} } accept'
+          - >
+              nft list chain filter portforward |
+              grep 'iifname "{{ vpngw.network.interface_vpn }}" oifname "{{ vpngw.network.interface_in }}"
+              tcp dport { {{ dport }} } accept'
 {%-   endif %}
       - pfwd_udp_{{ dport }}:
         - proto: udp
 {%-   if nftables %}
         - unless:
-          - nft list chain filter portforward | grep 'iifname "{{ vpngw.network.interface_vpn }}" oifname "{{ vpngw.network.interface_in }}" udp dport { {{ dport }} } accept'
+          - >
+              nft list chain filter portforward |
+              grep 'iifname "{{ vpngw.network.interface_vpn }}" oifname "{{ vpngw.network.interface_in }}"
+              udp dport { {{ dport }} } accept'
 {%-   endif %}
     - table: filter
     - chain: portforward
@@ -81,3 +110,14 @@ DNAT for forwarded port {{ dport }} is active:
     - to-destination: {{ "to " if nftables }}{{ target }}
     - save: true
 {%- endfor %}
+
+{%- set gw_ip = salt["network.interface_ip"](vpngw.network.interface_in) %}
+Mine data is updated:
+  module.run:
+    - mine.send:
+      - name: vpngw_port_forwards
+      - mine_function: slsutil.deserialize
+      - allow_tgt: 'ip4_gw:{{ gw_ip }}'
+      - allow_tgt_type: grain
+      - serializer: json
+      - stream_or_string: '{{ {gw_ip: vpngw.port_forward} | json }}'

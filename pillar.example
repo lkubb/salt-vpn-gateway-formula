@@ -72,6 +72,15 @@ vpngw:
     # You can configure port forwards. This should be a mapping of
     # port to target IP/IP:port. Eg: `41234: 192.168.234.3:80`.
   port_forward: {}
+    # You can also configure a script that answers with a list of
+    # ports which can be forwarded.
+  port_forward_script:
+      # arguments to the script
+    args: []
+      # source file for the script, e.g. salt://vpngw/files/custom/my_script.sh
+    source: ''
+      # targets the ports will be forwarded to in order
+    targets: []
 
     # These values are OS-specific and should not need to be changed.
   lookup:
@@ -82,6 +91,7 @@ vpngw:
       - dnsmasq
       - resolvconf
       - openvpn
+    port_forward_script: /etc/openvpn/port-forwards
     update_resolv_conf: /etc/openvpn/update-resolv-conf
 
   tofs:
