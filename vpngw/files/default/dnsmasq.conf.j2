@@ -10,3 +10,6 @@ dhcp-option=6,{{ vpngw.network.ipaddr_in }}
 {%- for mac, ipa in vpngw.dhcp.static.items() %}
 dhcp-host={{ mac }},{{ ipa }}
 {%- endfor %}
+{%- if vpngw.dns.hosts %}
+addn-hosts={{ vpngw.lookup.dnsmasq_hosts }}
+{%- endif %}

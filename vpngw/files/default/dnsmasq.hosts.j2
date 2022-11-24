@@ -1,0 +1,3 @@
+{%- for host, addr in vpngw.dns.hosts | dictsort %}
+{{ addr }} {{ host }}
+{%- endfor %}

@@ -11,6 +11,7 @@ vpngw:
     service:
       name: openvpn-client
     dnsmasq_config: /etc/dnsmasq.d/user.conf
+    dnsmasq_hosts: /etc/dnsmasq.hosts
     dnsmasq_service: dnsmasq
     netfilter: iptables
     pkgs:
@@ -33,6 +34,7 @@ vpngw:
     range_start: 192.168.234.50
     static: {}
   dns:
+    hosts: {}
     resolvconf_clear:
       interface_gw:
         - dhcp

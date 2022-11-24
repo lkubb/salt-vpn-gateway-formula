@@ -38,6 +38,8 @@ vpngw:
     static: {}
     # DNS-specific settings.
   dns:
+      # configure hostname overrides (hostname: ip)
+    hosts: {}
       # This formula ships a modified variant of `update-resolv-conf` to better
       # prevent DNS leaks. After startup, it tries to clear most non-VPN DNS
       # configuration from resolvconf.
@@ -85,6 +87,7 @@ vpngw:
     # These values are OS-specific and should not need to be changed.
   lookup:
     dnsmasq_config: /etc/dnsmasq.d/user.conf
+    dnsmasq_hosts: /etc/dnsmasq.hosts
     dnsmasq_service: dnsmasq
     netfilter: iptables
     pkgs:

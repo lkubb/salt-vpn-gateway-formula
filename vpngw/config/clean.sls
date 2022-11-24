@@ -13,5 +13,6 @@ vpngw-config-clean-file-absent:
     - names:
       - {{ vpngw.lookup.config }}
       - {{ vpngw.lookup.dnsmasq_config }}
+      - {{ vpngw.lookup.dnsmasq_hosts }}
     - require:
       - sls: {{ sls_service_clean }}

@@ -25,3 +25,24 @@ dnsmasq configuration is managed:
       - sls: {{ sls_package_install }}
     - context:
         vpngw: {{ vpngw | json }}
+
+
+{%- if vpngw.dns.hosts %}
+
+dnsmasq host overrides are managed:
+  file.managed:
+    - name: {{ vpngw.lookup.dnsmasq_hosts }}
+    - source: {{ files_switch(['dnsmasq.hosts.j2'],
+                              lookup='dnsmasq host overrides are managed'
+                 )
+              }}
+    - mode: 644
+    - user: root
+    - group: {{ vpngw.lookup.rootgroup }}
+    - makedirs: True
+    - template: jinja
+    - require:
+      - sls: {{ sls_package_install }}
+    - context:
+        vpngw: {{ vpngw | json }}
+{%- endif %}
