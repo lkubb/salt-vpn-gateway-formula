@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 # vim: ft=sls
 
-{%- set tplroot = tpldir.split('/')[0] %}
-{%- set sls_package_install = tplroot ~ '.package.install' %}
+{%- set tplroot = tpldir.split("/")[0] %}
+{%- set sls_package_install = tplroot ~ ".package.install" %}
 {%- from tplroot ~ "/map.jinja" import mapdata as vpngw with context %}
 {%- set nftables = "nftables" == vpngw.lookup.netfilter %}
 
@@ -34,7 +33,7 @@ Salt master connections are routed correctly:
 Downstream network interface has static IP:
   network.managed:
     - name: {{ vpngw.network.interface_in }}
-    - enabled: True
+    - enabled: true
     - type: eth
     - proto: static
     - ipaddr: {{ vpngw.network.ipaddr_in }}

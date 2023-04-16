@@ -1,7 +1,11 @@
-# -*- coding: utf-8 -*-
 # vim: ft=sls
 
-{%- set tplroot = tpldir.split('/')[0] %}
+{#-
+    Removes basic routing firewall rules applied in `vpngw.netconfig`_.
+    Also removes custom port forwards, if configured.
+#}
+
+{%- set tplroot = tpldir.split("/")[0] %}
 {%- from tplroot ~ "/map.jinja" import mapdata as vpngw with context %}
 {%- set nftables = "nftables" == vpngw.lookup.netfilter %}
 

@@ -1,9 +1,13 @@
-# -*- coding: utf-8 -*-
 # vim: ft=sls
 
-{%- set tplroot = tpldir.split('/')[0] %}
-{%- set sls_package_install = tplroot ~ '.package.install' %}
-{%- set sls_netconfig_base = tplroot ~ '.netconfig.base' %}
+{#-
+    Manages the OpenVPN service configuration and auth credentials.
+    Has a dependency on `vpngw.package`_.
+#}
+
+{%- set tplroot = tpldir.split("/")[0] %}
+{%- set sls_package_install = tplroot ~ ".package.install" %}
+{%- set sls_netconfig_base = tplroot ~ ".netconfig.base" %}
 {%- from tplroot ~ "/map.jinja" import mapdata as vpngw with context %}
 {%- from tplroot ~ "/libtofs.jinja" import files_switch with context %}
 
@@ -14,14 +18,14 @@ include:
 update-resolv-conf is managed:
   file.managed:
     - name: {{ vpngw.lookup.update_resolv_conf }}
-    - source: {{ files_switch(['update-resolv-conf.j2'],
-                              lookup='update-resolv-conf is managed'
+    - source: {{ files_switch(["update-resolv-conf.j2"],
+                              lookup="update-resolv-conf is managed"
                  )
               }}
-    - mode: 755
+    - mode: '0755'
     - user: root
     - group: {{ vpngw.lookup.rootgroup }}
-    - makedirs: True
+    - makedirs: true
     - template: jinja
     - require:
       - sls: {{ sls_package_install }}
@@ -46,14 +50,14 @@ VPN configuration files are sourced from archive:
 VPN configuration is managed:
   file.managed:
     - name: {{ vpngw.lookup.config | path_join("salt.conf") }}
-    - source: {{ files_switch(['vpn-client.conf'],
-                              lookup='VPN configuration is managed'
+    - source: {{ files_switch(["vpn-client.conf"],
+                              lookup="VPN configuration is managed"
                  )
               }}
-    - mode: 644
+    - mode: '0644'
     - user: root
     - group: {{ vpngw.lookup.rootgroup }}
-    - makedirs: True
+    - makedirs: true
     - template: jinja
     - require:
       - sls: {{ sls_package_install }}
@@ -66,14 +70,14 @@ VPN configuration is managed:
 Authentication file is present:
   file.managed:
     - name: {{ vpngw.lookup.config | path_join("p.txt") }}
-    - source: {{ files_switch(['p.txt.j2'],
-                              lookup='Authentication file is present'
+    - source: {{ files_switch(["p.txt.j2"],
+                              lookup="Authentication file is present"
                  )
               }}
-    - mode: 600
+    - mode: '0600'
     - user: root
     - group: {{ vpngw.lookup.rootgroup }}
-    - makedirs: True
+    - makedirs: true
     - template: jinja
     - require:
       - sls: {{ sls_package_install }}

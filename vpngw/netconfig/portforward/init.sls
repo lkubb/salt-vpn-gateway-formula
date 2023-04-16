@@ -1,8 +1,11 @@
-# -*- coding: utf-8 -*-
 # vim: ft=sls
 
-{%- set tplroot = tpldir.split('/')[0] %}
-{%- set sls_netconfig_base = tplroot ~ '.netconfig.base' %}
+{#-
+    Manages custom port forwards.
+#}
+
+{%- set tplroot = tpldir.split("/")[0] %}
+{%- set sls_netconfig_base = tplroot ~ ".netconfig.base" %}
 {%- from tplroot ~ "/map.jinja" import mapdata as vpngw with context %}
 {%- set nftables = "nftables" == vpngw.lookup.netfilter %}
 
