@@ -171,6 +171,19 @@ and then starts the OpenVPN and dnsmasq services.
 Installs the relevant packages only (``openvpn``, ``dnsmasq``, ``resolvconf`` currently).
 
 
+``vpngw.netconfig``
+^^^^^^^^^^^^^^^^^^^
+Applies basic routing firewall rules, including ensuring the
+connection to the Salt master is not terminated after
+starting the OpenVPN service.
+Also applies custom port forwards, if configured.
+
+
+``vpngw.netconfig.portforward``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Manages custom port forwards.
+
+
 ``vpngw.config``
 ^^^^^^^^^^^^^^^^
 Manages the OpenVPN and dnsmasq service configurations.
@@ -205,19 +218,6 @@ Has a dependency on `vpngw.config`_.
 
 
 
-``vpngw.netconfig``
-^^^^^^^^^^^^^^^^^^^
-Applies basic routing firewall rules, including ensuring the
-connection to the Salt master is not terminated after
-starting the OpenVPN service.
-Also applies custom port forwards, if configured.
-
-
-``vpngw.netconfig.portforward``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Manages custom port forwards.
-
-
 ``vpngw.clean``
 ^^^^^^^^^^^^^^^
 *Meta-state*.
@@ -236,17 +236,6 @@ Removes the VPN Gateway packages.
 Has a depency on `vpngw.config.clean`_.
 
 
-``vpngw.config.clean``
-^^^^^^^^^^^^^^^^^^^^^^
-Removes the OpenVPN and dnsmasq configurations and has a
-dependency on `vpngw.service.clean`_.
-
-
-``vpngw.service.clean``
-^^^^^^^^^^^^^^^^^^^^^^^
-Stops the OpenVPN and dnsmasq services and disables them at boot time.
-
-
 ``vpngw.netconfig.clean``
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 Removes basic routing firewall rules applied in `vpngw.netconfig`_.
@@ -256,6 +245,17 @@ Also removes custom port forwards, if configured.
 ``vpngw.netconfig.portforward.clean``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Removes custom port forwards.
+
+
+``vpngw.config.clean``
+^^^^^^^^^^^^^^^^^^^^^^
+Removes the OpenVPN and dnsmasq configurations and has a
+dependency on `vpngw.service.clean`_.
+
+
+``vpngw.service.clean``
+^^^^^^^^^^^^^^^^^^^^^^^
+Stops the OpenVPN and dnsmasq services and disables them at boot time.
 
 
 
