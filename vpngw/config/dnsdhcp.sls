@@ -8,7 +8,7 @@
 {%- set tplroot = tpldir.split("/")[0] %}
 {%- set sls_package_install = tplroot ~ ".package.install" %}
 {%- from tplroot ~ "/map.jinja" import mapdata as vpngw with context %}
-{%- from tplroot ~ "/libtofs.jinja" import files_switch with context %}
+{%- from tplroot ~ "/libtofsstack.jinja" import files_switch with context %}
 
 include:
   - {{ sls_package_install }}
@@ -16,8 +16,10 @@ include:
 dnsmasq configuration is managed:
   file.managed:
     - name: {{ vpngw.lookup.dnsmasq_config }}
-    - source: {{ files_switch(["dnsmasq.conf.j2"],
-                              lookup="dnsmasq configuration is managed"
+    - source: {{ files_switch(
+                    ["dnsmasq.conf", "dnsmasq.conf.j2"],
+                    config=vpngw,
+                    lookup="dnsmasq configuration is managed",
                  )
               }}
     - mode: '0644'
@@ -36,8 +38,10 @@ dnsmasq configuration is managed:
 dnsmasq host overrides are managed:
   file.managed:
     - name: {{ vpngw.lookup.dnsmasq_hosts }}
-    - source: {{ files_switch(["dnsmasq.hosts.j2"],
-                              lookup="dnsmasq host overrides are managed"
+    - source: {{ files_switch(
+                    ["dnsmasq.hosts", "dnsmasq.hosts.j2"],
+                    config=vpngw,
+                    lookup="dnsmasq host overrides are managed",
                  )
               }}
     - mode: '0644'

@@ -2,7 +2,7 @@
 
 {#-
     Removes the VPN Gateway packages.
-    Has a depency on `vpngw.config.clean`_.
+    Has a dependency on `vpngw.config.clean`_.
 #}
 
 {%- set tplroot = tpldir.split("/")[0] %}

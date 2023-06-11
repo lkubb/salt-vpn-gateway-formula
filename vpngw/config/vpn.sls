@@ -9,7 +9,7 @@
 {%- set sls_package_install = tplroot ~ ".package.install" %}
 {%- set sls_netconfig_base = tplroot ~ ".netconfig.base" %}
 {%- from tplroot ~ "/map.jinja" import mapdata as vpngw with context %}
-{%- from tplroot ~ "/libtofs.jinja" import files_switch with context %}
+{%- from tplroot ~ "/libtofsstack.jinja" import files_switch with context %}
 
 include:
   - {{ sls_package_install }}
@@ -18,8 +18,10 @@ include:
 update-resolv-conf is managed:
   file.managed:
     - name: {{ vpngw.lookup.update_resolv_conf }}
-    - source: {{ files_switch(["update-resolv-conf.j2"],
-                              lookup="update-resolv-conf is managed"
+    - source: {{ files_switch(
+                    ["update-resolv-conf", "update-resolv-conf.j2"],
+                    config=vpngw,
+                    lookup="update-resolv-conf is managed"
                  )
               }}
     - mode: '0755'
@@ -50,8 +52,10 @@ VPN configuration files are sourced from archive:
 VPN configuration is managed:
   file.managed:
     - name: {{ vpngw.lookup.config | path_join("salt.conf") }}
-    - source: {{ files_switch(["vpn-client.conf"],
-                              lookup="VPN configuration is managed"
+    - source: {{ files_switch(
+                    ["vpn-client.conf"],
+                    config=vpngw,
+                    lookup="VPN configuration is managed"
                  )
               }}
     - mode: '0644'
@@ -70,8 +74,10 @@ VPN configuration is managed:
 Authentication file is present:
   file.managed:
     - name: {{ vpngw.lookup.config | path_join("p.txt") }}
-    - source: {{ files_switch(["p.txt.j2"],
-                              lookup="Authentication file is present"
+    - source: {{ files_switch(
+                    ["p.txt", "p.txt.j2"],
+                    config=vpngw,
+                    lookup="Authentication file is present"
                  )
               }}
     - mode: '0600'
