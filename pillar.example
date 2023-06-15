@@ -70,6 +70,10 @@ vpngw:
     ipaddr_in: 192.168.234.1
       # The netmask of the downstream (client) network.
     netmask_in: 255.255.255.0
+      # Configure additional routes for the interface defined in `interface_gw`.
+      # Salt master routing is preserved automatically.
+      # Format: [{ip: 1.2.3.4, gw: 5.6.7.8}]
+    routes: []
     # You can configure port forwards. This should be a mapping of
     # port to target IP/IP:port. Eg: `41234: 192.168.234.3:80`.
   port_forward: {}

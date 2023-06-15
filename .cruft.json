@@ -72,7 +72,8 @@
           "interface_gw": "eth0",
           "interface_vpn": "tun0",
           "ipaddr_in": "192.168.234.1",
-          "netmask_in": "255.255.255.0"
+          "netmask_in": "255.255.255.0",
+          "routes": []
         },
         "port_forward": {},
         "port_forward_script": {

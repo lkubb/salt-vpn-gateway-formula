@@ -8,26 +8,37 @@
 include:
   - {{ sls_package_install }}
 
+{%- set routes = salt["defaults.deepcopy"](vpngw.network.routes) %}
+
+{#- Ensure Salt master connections are routed correctly #}
 {%- if opts.get("master_type", "str") != "disable" %}
 {%-   if opts.get("file_client") != "local" %}
 {%-     set masters = opts.get("master", []) %}
 {%-     set masters = [masters] if not masters | is_list else masters %}
-{%-     set default_gateway = salt["ip.get_interface"](vpngw.network.interface_gw) | join("\n") | regex_search("\s*gateway\s+([\d\.]+)") | first %}
+{%-     set default_gateway = salt["network.default_route"]("inet")
+            | selectattr("interface", "==", vpngw.network.interface_gw)
+            | map(attribute="gateway") | first %}
 {%-     if masters and default_gateway %}
-
-Salt master connections are routed correctly:
-  network.routes:
-    - name: {{ vpngw.network.interface_gw }}
-    - routes:
 {%-       for master in masters %}
 {%-         if not salt["dnsutil.check_ip"](master) %}
 {%-           set master = salt["dnsutil.A"](master) %}
 {%-         endif %}
-      - ipaddr: {{ master }}
-        gateway: {{ default_gateway }}
+{%-         do routes.append({"ip": master, "gw": default_gateway}) %}
 {%-       endfor %}
 {%-     endif %}
 {%-   endif %}
+{%- endif %}
+
+{%- if routes %}
+
+Upstream network interface routes are managed:
+  network.routes:
+    - name: {{ vpngw.network.interface_gw }}
+    - routes:
+{%-   for route in routes %}
+      - ipaddr: {{ route.ip }}
+        gateway: {{ route.gw }}
+{%-   endfor %}
 {%- endif %}
 
 Downstream network interface has static IP:

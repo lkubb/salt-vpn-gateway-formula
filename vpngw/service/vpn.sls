@@ -2,6 +2,7 @@
 
 {%- set tplroot = tpldir.split("/")[0] %}
 {%- set sls_config_vpn = tplroot ~ ".config.vpn" %}
+{%- set sls_netconfig = tplroot ~ ".config.vpn" %}
 {%- from tplroot ~ "/map.jinja" import mapdata as vpngw with context %}
 
 include:
@@ -14,3 +15,4 @@ VPN Gateway service is running:
     - enable: true
     - watch:
       - sls: {{ sls_config_vpn }}
+      - network: {{ vpngw.network.interface_gw }}
