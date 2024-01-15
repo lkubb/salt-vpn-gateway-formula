@@ -53,6 +53,7 @@ vpngw:
     args: []
     source: ''
     targets: []
+  use_nftables_formula: false
 
   tofs:
     # The files_switch key serves as a selector for alternative

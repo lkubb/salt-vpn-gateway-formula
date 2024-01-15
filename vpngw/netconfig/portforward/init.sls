@@ -11,6 +11,9 @@
 
 include:
   - {{ sls_netconfig_base }}
+{%- if vpngw.use_nftables_formula %}
+  - nftables
+{%- endif %}
 
 {%- if vpngw.port_forward_script.source %}
 {%-   set pfs = vpngw.port_forward_script.source %}
@@ -35,17 +38,19 @@ Custom port forward script is present:
     - makedirs: true
 {%- endif %}
 
+{%- if not nftables or not vpngw.use_nftables_formula %}
+
 Port forwarding chains exist:
   {{ vpngw.lookup.netfilter }}.chain_present:
     - names:
       - portforward
-{%- if nftables %}
+{%-   if nftables %}
       - prerouting:
         - table: nat
         - table_type: nat
         - hook: prerouting
         - priority: -100
-{%- endif %}
+{%-   endif %}
     - table: filter
     - family: ipv4
 
@@ -56,7 +61,7 @@ Separate portforward chain is used:
     #{# accept etc omit jump, but custom chains need it. salt does not account for that #}
     - jump: {{ "jump " if nftables }}portforward
 
-{%- if not nftables %}
+{%-   if not nftables %}
 
 # this fails and might not be necessary
 portforward chain drops by default:
@@ -65,31 +70,31 @@ portforward chain drops by default:
     - chain: portforward
     - policy: drop
     - save: true
-{%- endif %}
+{%-   endif %}
 
-{%- for dport, target in vpngw.port_forward.items() %}
+{%-   for dport, target in vpngw.port_forward.items() %}
 
 Incoming packets for forwarded port {{ dport }} are accepted:
   {{ vpngw.lookup.netfilter }}.append:
     - names:
       - pfwd_tcp_{{ dport }}:
         - proto: tcp
-{%-   if nftables %}
+{%-     if nftables %}
         - unless:
           - >
               nft list chain filter portforward |
               grep 'iifname "{{ vpngw.network.interface_vpn }}" oifname "{{ vpngw.network.interface_in }}"
               tcp dport { {{ dport }} } accept'
-{%-   endif %}
+{%-     endif %}
       - pfwd_udp_{{ dport }}:
         - proto: udp
-{%-   if nftables %}
+{%-     if nftables %}
         - unless:
           - >
               nft list chain filter portforward |
               grep 'iifname "{{ vpngw.network.interface_vpn }}" oifname "{{ vpngw.network.interface_in }}"
               udp dport { {{ dport }} } accept'
-{%-   endif %}
+{%-     endif %}
     - table: filter
     - chain: portforward
     - jump: accept
@@ -112,7 +117,14 @@ DNAT for forwarded port {{ dport }} is active:
     #{# nft list prints `dnat to <target>`, but salt searches without to, so not idempotent #}
     - to-destination: {{ "to " if nftables }}{{ target }}
     - save: true
-{%- endfor %}
+{%-   endfor %}
+{%- else %}
+
+nftables is configured:
+  test.nop:
+    - require:
+      - service: nftables  # cannot require the whole sls bc it's just includes
+{%- endif %}
 
 {%- set gw_ip = salt["network.interface_ip"](vpngw.network.interface_in) %}
 Mine data is updated:

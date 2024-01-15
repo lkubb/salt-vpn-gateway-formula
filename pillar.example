@@ -86,6 +86,9 @@ vpngw:
     source: ''
       # targets the ports will be forwarded to in order
     targets: []
+    # Instead of managing nftables (port forwards) using this formula, include
+    # and require a state named `nftables`.
+  use_nftables_formula: false
 
     # These values are OS-specific and should not need to be changed.
   lookup:

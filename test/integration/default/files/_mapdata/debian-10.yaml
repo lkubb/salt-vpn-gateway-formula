@@ -55,6 +55,7 @@ values:
     args: []
     source: ''
     targets: []
+  use_nftables_formula: false
   map_jinja:
     sources:
     - Y:G@osarch

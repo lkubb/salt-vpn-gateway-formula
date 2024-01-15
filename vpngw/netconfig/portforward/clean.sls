@@ -8,6 +8,8 @@
 {%- from tplroot ~ "/map.jinja" import mapdata as vpngw with context %}
 {%- set nftables = "nftables" == vpngw.lookup.netfilter %}
 
+{%- if not nftables or not vpngw.use_nftables_formula %}
+
 Separate portforward chain is not used:
   {{ vpngw.lookup.netfilter }}.delete:
     - table: filter
@@ -20,7 +22,7 @@ Port forwarding chains do not exist:
       - portforward:
         - require:
           - Separate portforward chain is not used
-{%- if nftables %}
+{%-   if nftables %}
       # this will throw an exception currently, but the chain is deleted
       # anyways (same with above). delete_chain returns a ret dict, not a string
       # File "/usr/lib/python3/dist-packages/salt/states/nftables.py", line 222, in chain_absent
@@ -28,12 +30,12 @@ Port forwarding chains do not exist:
       # AttributeError: 'dict' object has no attribute 'strip'
       # @TODO bug report
       - prerouting
-{%- endif %}
+{%-   endif %}
     - table: filter
     - family: ipv4
 
-{%- if not nftables %}
-{%-   for dport, target in vpngw.port_forward.items() %}
+{%-   if not nftables %}
+{%-     for dport, target in vpngw.port_forward.items() %}
 
 DNAT for forwarded port {{ dport }} is inactive:
   {{ vpngw.lookup.netfilter }}.delete:
@@ -48,5 +50,6 @@ DNAT for forwarded port {{ dport }} is inactive:
     - jump: dnat
     - to-destination: {{ target }}
     - save: true
-{%-   endfor %}
+{%-     endfor %}
+{%-   endif %}
 {%- endif %}

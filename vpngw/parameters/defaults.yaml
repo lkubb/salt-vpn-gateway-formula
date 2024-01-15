@@ -52,6 +52,7 @@ values:
     args: []
     source: ''
     targets: []
+  use_nftables_formula: false
   tofs:
     files_switch:
       - id

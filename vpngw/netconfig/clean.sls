@@ -17,7 +17,7 @@ Packet forwarding is disabled:
     - name: net.ipv4.ip_forward
 
 {%- if nftables %}
-
+{%-   if not vpngw.use_nftables_formula %}
 # These are not present with nftables by default
 Required nftables tables are present:
   nftables.table_absent:
@@ -25,6 +25,7 @@ Required nftables tables are present:
       - filter
       - nat
     - family: ipv4
+{%-   endif %}
 {%- else %}
 
 ipf does not forward packages from intranet for new connections:

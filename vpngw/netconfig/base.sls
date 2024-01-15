@@ -56,7 +56,7 @@ Packet forwarding is enabled:
     - name: net.ipv4.ip_forward
     - value: 1
 
-{%- if nftables %}
+{%- if nftables and not vpngw.use_nftables_formula %}
 
 # These are not present with nftables by default
 Required nftables tables are present:
@@ -83,17 +83,19 @@ Required nftables chains are present:
     - family: ipv4
 {%- endif %}
 
+{%- if not nftables or not vpngw.use_nftables_formula %}
+
 forward chain drops by default:
   {{ vpngw.lookup.netfilter }}.set_policy:
     - table: filter
     - chain: forward
     - policy: drop
     - save: true
-{%- if nftables %}
+{%-   if nftables %}
     # This always reports "changes" otherwise
     - unless:
       - nft list chain filter forward | grep "type filter hook forward priority filter; policy drop;"
-{%- endif %}
+{%-   endif %}
 
 ipf forwards packages from intranet for new connections:
   {{ vpngw.lookup.netfilter }}.append:
@@ -105,19 +107,19 @@ ipf forwards packages from intranet for new connections:
     - source: {{ vpngw.network.cidr_in }}
     # works around one issue, but if/of still make this not idempotent
     - connstate: {{ "new" if not nftables else "'0x8'" }}
-{%- if nftables %}
+{%-   if nftables %}
     - unless:
       - >
           nft list chain filter forward |
           grep 'iifname "{{ vpngw.network.interface_in }}" oifname "{{ vpngw.network.interface_vpn }}"
           ct state { new } ip saddr {{ vpngw.network.cidr_in }} accept'
-{%- endif %}
+{%-   endif %}
     - save: true
     - require:
       - Packet forwarding is enabled
-{%- if nftables %}
+{%-   if nftables %}
       - Required nftables chains are present
-{%- endif %}
+{%-   endif %}
       - sls: {{ sls_package_install }}
 
 ipf forwards all packages belonging to existing connections:
@@ -130,9 +132,9 @@ ipf forwards all packages belonging to existing connections:
     - save: true
     - require:
       - Packet forwarding is enabled
-{%- if nftables %}
+{%-   if nftables %}
       - Required nftables chains are present
-{%- endif %}
+{%-   endif %}
       - sls: {{ sls_package_install }}
 
 ipf masquerades outgoing packages (NAT):
@@ -143,6 +145,7 @@ ipf masquerades outgoing packages (NAT):
     - save: true
     - require:
       - Packet forwarding is enabled
-{%- if nftables %}
+{%-   if nftables %}
       - Required nftables chains are present
+{%-   endif %}
 {%- endif %}

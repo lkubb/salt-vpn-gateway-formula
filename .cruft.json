@@ -80,7 +80,8 @@
           "args": [],
           "source": "",
           "targets": []
-        }
+        },
+        "use_nftables_formula": false
       },
       "_template": "https://github.com/lkubb/salt-template-formula"
     }
